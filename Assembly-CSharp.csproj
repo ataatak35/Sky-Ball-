@@ -56,6 +56,7 @@
      <Compile Include="Assets\Assets\PlayerController.cs" />
      <Compile Include="Assets\Assets\GameManager.cs" />
      <Compile Include="Assets\Assets\CameraController.cs" />
+     <None Include="Assets\Fantasy Skybox FREE\Readme.txt" />
  <Reference Include="UnityEngine">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2020.3.2f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
  </Reference>
