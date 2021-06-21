@@ -21,6 +21,8 @@
       <Path>Logs</Path>
       <Path>Temp</Path>
       <Path>UserSettings</Path>
+      <Path>hooks</Path>
+      <Path>lfs</Path>
       <Path>obj</Path>
     </explicitExcludes>
   </component>

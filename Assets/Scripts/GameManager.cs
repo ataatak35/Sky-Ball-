@@ -2,83 +2,62 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Random = UnityEngine.Random;
+using UnityEngine.Assertions.Must;
+using UnityEngine.SceneManagement;
+using UnityEngine.SocialPlatforms.GameCenter;
+using UnityEngine.UIElements;
 
-public class GameManager : MonoBehaviour
+public class GameManager : Singleton<GameManager>
 {
-    public GameObject road;
-    public GameObject roadWithObstacle;
+    protected GameManager(){}
+    
+    private GameObject player;
+    private Vector3 startingPos;
+    private Vector3 instantPos;
 
-    // Start is called before the first frame update
+    public bool gameCanStart;
+    
     void Start()
     {
-        GenerateRandomLevel();
+        gameCanStart = false;
+        PlayerController.velocity = 0f;
+        
+        ScoreManager.score = 0;
+        player = GameObject.Find("Player");
+        startingPos = player.transform.position;
     }
 
-    // Update is called once per frame
     void Update()
     {
+        instantPos = player.transform.position;
+
+        Vector3 distance = instantPos - startingPos;
+
+        ScoreManager.score = (int) distance.x;
+
+        if (gameCanStart)
+        {
+            PlayerController.velocity = 15f;
+            gameCanStart = false;
+        }
         
     }
 
-    [SerializeField]private GameObject startingRoad;
-    void GenerateRandomLevel()
+    public void Pause()
     {
-        //3 kalas yan yana olacak
-        //kalasların uzunlukları değişecek (7 - 15 birim arası)
-        //kalaslar arası mesafe sınırlandırılacak (max 8 birim)
-        //yan yana duran kalasların arası her zaman aynı olacak (4 birim)
-        //her zaman yan yana 3 kalas olacak
-        //en sonuncu kalasta hep bir end işareti olacak
-        //ende olan mesafeye göre fonksiyon yeni kalaslar üretecek
 
-        
-        
-        ArrayList tumKalaslar = new ArrayList(30);
-        int birSiradaOlacakKalasSayisi = 3;
-        int kalasSatirSayisi = 10;
+        Time.timeScale = 0;
 
-        
-        //2 SATIR OLUŞTURUYOR
-        //BUNUN 5 KERE DÖNMESİ LAZIM
+    }
 
-        //Bİ TANE BAŞTA YOL OLACAK
-        //SONRA ONU KULLANAR DİĞERLERİ
-        //SONRA ONU SİL DİĞERLERİ KALSIN
-        
-        int satirSayisi = 0;
-        GameObject lastRoad = new GameObject();
-        lastRoad.transform.position = Vector3.zero;
-        
-        while (satirSayisi < kalasSatirSayisi / 2)
-        {
+    public void Continue()
+    {
+        Time.timeScale = 1;
+    }
 
-            for (int i = 0; i < birSiradaOlacakKalasSayisi; i++)
-            {
-
-                int bosluk = Random.Range(5, 8);
-                int randomScale = Random.Range(7, 15);
-                int originlerArasıMesafe = Convert.ToInt32((startingRoad.transform.localScale.x)/2 + bosluk + randomScale/2);
-                
-                GameObject cloneRoad1 = Instantiate(road, new Vector3(lastRoad.transform.position.x + originlerArasıMesafe, lastRoad.transform.position.y,i*4),Quaternion.identity);
-            
-                //oluşturulan kalasın önüne kalas oluşturma
-                GameObject oppositeRoad = Instantiate(road,
-                    new Vector3(cloneRoad1.transform.position.x + originlerArasıMesafe, 0, cloneRoad1.transform.position.z),
-                    Quaternion.identity);
-                oppositeRoad.transform.localScale = new Vector3(randomScale, 1, 2);
-                
-                tumKalaslar.Add(cloneRoad1);
-                tumKalaslar.Add(oppositeRoad);
-           
-            }
-
-            lastRoad = (GameObject)tumKalaslar[tumKalaslar.Count-1];
-
-            satirSayisi++;
-        }
-        
-        
-        
+    public void Restart()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        Time.timeScale = 1;
     }
 }
