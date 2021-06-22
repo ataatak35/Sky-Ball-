@@ -1,11 +1,6 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Assertions.Must;
 using UnityEngine.SceneManagement;
-using UnityEngine.SocialPlatforms.GameCenter;
-using UnityEngine.UIElements;
 
 public class GameManager : Singleton<GameManager>
 {
@@ -14,12 +9,19 @@ public class GameManager : Singleton<GameManager>
     private GameObject player;
     private Vector3 startingPos;
     private Vector3 instantPos;
+    public ParticleSystem particleSystem;
 
     public bool gameCanStart;
+    private bool isGainSpeed;
+    
+    int gameOverCount;
     
     void Start()
     {
+        gameOverCount = 0;
+        
         gameCanStart = false;
+        isGainSpeed = false;
         PlayerController.velocity = 0f;
         
         ScoreManager.score = 0;
@@ -27,6 +29,27 @@ public class GameManager : Singleton<GameManager>
         startingPos = player.transform.position;
     }
 
+    private IEnumerator WaitForGameOver()
+    {
+        yield return new WaitForSeconds(1.9f);
+        
+        particleSystem.Stop();
+        Time.timeScale = 0;
+        UIManager.Instance.OpenGameOverMenu();
+
+    }
+    
+    public void GameOver()
+    {
+        
+        Instantiate(particleSystem, player.transform.position, Quaternion.identity);
+        player.SetActive(false);
+
+        StartCoroutine(WaitForGameOver());
+
+    }
+
+    
     void Update()
     {
         instantPos = player.transform.position;
@@ -37,17 +60,40 @@ public class GameManager : Singleton<GameManager>
 
         if (gameCanStart)
         {
-            PlayerController.velocity = 15f;
+            PlayerController.velocity = 10f;
+            Time.timeScale = 1;
             gameCanStart = false;
+        }
+
+        if (ScoreManager.score % 100 == 0 && ScoreManager.score != 0)
+        {
+            isGainSpeed = true;
+        }
+
+        if (PlayerController.rb.velocity.x == 0 && player.transform.position.x - startingPos.x != 0)
+        {
+            gameOverCount += 1;
+        }
+        
+        if(gameOverCount == 1)
+            GameOver();
+        
+    }
+
+    private void FixedUpdate()
+    {
+        
+        if (isGainSpeed)
+        {
+            PlayerController.velocity += 0.3f;
+            isGainSpeed = false;
         }
         
     }
 
     public void Pause()
     {
-
         Time.timeScale = 0;
-
     }
 
     public void Continue()
@@ -57,7 +103,10 @@ public class GameManager : Singleton<GameManager>
 
     public void Restart()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         Time.timeScale = 1;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
+
+    
+    
 }

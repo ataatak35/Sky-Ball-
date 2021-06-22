@@ -1,15 +1,18 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIManager : MonoBehaviour
+public class UIManager : Singleton<UIManager>
 {
+    protected UIManager(){}
+    
     [SerializeField]private GameObject playButton;
     [SerializeField]private GameObject skyBallText;
     [SerializeField]private GameObject pauseMenu;
     [SerializeField]private GameObject pauseButton;
+    [SerializeField]private GameObject gameOverMenu;
+    [SerializeField]private Text gameOverMenuScoreText;
     
+
     // Start is called before the first frame update
     void Start()
     {
@@ -54,6 +57,14 @@ public class UIManager : MonoBehaviour
     {
 
         GameManager.Instance.Restart();
+
+    }
+
+    public void OpenGameOverMenu()
+    {
+
+        gameOverMenu.SetActive(true);
+        gameOverMenuScoreText.text = ScoreManager.score.ToString();
 
     }
     

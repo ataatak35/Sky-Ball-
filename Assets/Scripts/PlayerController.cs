@@ -1,14 +1,9 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Transactions;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour{
     public static float velocity;
     public static Rigidbody rb;
     private int desiredLane = 1; //0 left, 1 middle, 2 right
-    public float laneDistance = 3.5f;
     private float jumpForce;
 
     [SerializeField]private bool isGrounded;
@@ -17,12 +12,15 @@ public class PlayerController : MonoBehaviour{
     private bool isMovingLeft;
 
     private Vector3 firstPos;
+
+    private float distanceToTheGround;
     
     void Start()
     {
+        distanceToTheGround = GetComponent<Collider>().bounds.extents.y;
 
         rb = GetComponent<Rigidbody>();
-        jumpForce = 5f;
+        jumpForce = 10f;
         isJumping = false;
         isGrounded = true;
         isMovingRight = false;
@@ -35,13 +33,12 @@ public class PlayerController : MonoBehaviour{
     {
         
         
-        if (Physics.Raycast(transform.position - new Vector3(0, transform.localScale.y / 2 + 0.05f, 0), Vector3.down, 0.1f))
+        if (Physics.Raycast(transform.position, Vector3.down, distanceToTheGround + 0.1f))
         {
             isGrounded = true;
         }
         else
         {
-            Debug.Log("sıkıntı");
             isGrounded = false;
         }
         
@@ -82,9 +79,10 @@ public class PlayerController : MonoBehaviour{
            {
                if (transform.position.z > 0)
                {
-                   
+                   Debug.Log("SAĞDAN ORTAYA");
                    transform.position = new Vector3(transform.position.x, transform.position.y, 0);
-                   rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y, 0);
+                   rb.velocity = new Vector3(rb.velocity.x, 0, 0);
+                   rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y - 10f, 0);
                    
                }
                    
@@ -94,9 +92,11 @@ public class PlayerController : MonoBehaviour{
            {
                if (transform.position.z < 0)
                {
-                   
+                   Debug.Log("SOldan ORTAYA");
+
                    transform.position = new Vector3(transform.position.x, transform.position.y, 0);
-                   rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y, 0);
+                   rb.velocity = new Vector3(rb.velocity.x, 0, 0);
+                   rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y - 10f, 0);
 
                } 
                    
@@ -108,7 +108,7 @@ public class PlayerController : MonoBehaviour{
 
     private void FixedUpdate()
     {
-        //rb.velocity = new Vector3(velocity,rb.velocity.y,rb.velocity.z);
+        rb.velocity = new Vector3(velocity,rb.velocity.y,rb.velocity.z);
 
         if (isJumping)
         {
